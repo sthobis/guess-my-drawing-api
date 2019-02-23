@@ -1,10 +1,81 @@
-const express = require('express')
-const app = express()
+import express from "express";
+import http from "http";
+import socketio from "socket.io";
+import PlayerManager from "./playerManager";
 
-app.get('*', (req, res) => {
-    res.write('<h1><marquee direction=right>Hello from Express path `/` on Now 2.0!</marquee></h1>')
-    res.write('<h2>Go to <a href="/about">/about</a></h2>')
-    res.end()
-})
+const PORT = process.env.PORT || 3004;
+const app = express();
+const server = http.Server(app);
+const io = socketio(server);
+const pm = new PlayerManager();
 
-module.exports = app
+const EVENT = {
+  CONNECT: "connect",
+  CONNECT_ERROR: "connect_error",
+  DISCONNECT: "disconnect",
+  DISCONNECTING: "disconnecting",
+  GENERAL_ERROR: "general_error",
+  CLIENT_JOIN_ROOM: "client_join_room",
+  CLIENT_LEAVE_ROOM: "client_leave_room",
+  CLIENT_SUBMIT_ANSWER: "client_submit_answer",
+  SERVER_JOIN_ERROR: "server_join_error",
+  SERVER_UPDATE_PLAYER_LIST: "server_update_player_list",
+  SERVER_NEW_ANSWER: "server_new_answer"
+};
+
+io.on(EVENT.CONNECT, socket => {
+  socket.on(EVENT.CLIENT_JOIN_ROOM, player => {
+    try {
+      pm.addPlayer({ ...player, id: socket.id });
+      console.log(
+        `${EVENT.CLIENT_JOIN_ROOM} : "${player.name}" has join the room.`
+      );
+      socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
+    } catch (err) {
+      console.log(
+        `${EVENT.CLIENT_JOIN_ROOM} : "${
+          player.name
+        }" failed to join the room.\nERR: ${err}`
+      );
+      socket.emit(EVENT.SERVER_JOIN_ERROR, err);
+      socket.disconnect(true);
+    }
+  });
+
+  socket.on(EVENT.CLIENT_LEAVE_ROOM, player => {
+    pm.removePlayerById(player.id);
+    console.log(
+      `${EVENT.CLIENT_LEAVE_ROOM} : "${player.name}" has left the room.`
+    );
+    socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
+  });
+
+  socket.on(EVENT.CLIENT_SUBMIT_ANSWER, payload => {
+    console.log(
+      `${EVENT.CLIENT_SUBMIT_ANSWER} : "${
+        payload.player.name
+      }" submit an answer.`
+    );
+    socket.broadcast.emit(EVENT.SERVER_NEW_ANSWER, payload);
+  });
+
+  socket.on(EVENT.DISCONNECT, reason => {
+    console.log(`${EVENT.DISCONNECT} : ${reason}.`);
+    const player = pm.removePlayerById(socket.id);
+    console.log(`${EVENT.DISCONNECT} : "${player.name}" has left the room.`);
+    socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
+  });
+
+  socket.on(EVENT.ERROR, err => {
+    console.log(`${EVENT.ERROR} : ${err}`);
+  });
+});
+
+app.get("/", (req, res) => {
+  res.send("I'm listening!");
+});
+
+server.listen(PORT, err => {
+  if (err) throw err;
+  console.log(`Ready on port ${PORT}`);
+});

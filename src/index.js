@@ -25,20 +25,11 @@ const EVENT = {
 };
 
 io.on(EVENT.CONNECT, socket => {
-  socket.on(EVENT.CLIENT_JOIN_ROOM, (player, cb) => {
+  socket.on(EVENT.CLIENT_JOIN_ROOM, player => {
     try {
       pm.addPlayer({ ...player, socketId: socket.id });
-      console.log(
-        `${EVENT.CLIENT_JOIN_ROOM} : "${player.username}" has join the room.`
-      );
-      socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
-      cb(pm.players);
+      io.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
     } catch (err) {
-      console.log(
-        `${EVENT.CLIENT_JOIN_ROOM} : "${
-          player.username
-        }" failed to join the room.\nERR: ${err}`
-      );
       socket.emit(EVENT.SERVER_JOIN_ERROR, err);
       socket.disconnect(true);
     }
@@ -46,18 +37,10 @@ io.on(EVENT.CONNECT, socket => {
 
   socket.on(EVENT.CLIENT_LEAVE_ROOM, player => {
     pm.removePlayerBySocketId(player.socketId);
-    console.log(
-      `${EVENT.CLIENT_LEAVE_ROOM} : "${player.username}" has left the room.`
-    );
     socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
   });
 
   socket.on(EVENT.CLIENT_SUBMIT_ANSWER, payload => {
-    console.log(
-      `${EVENT.CLIENT_SUBMIT_ANSWER} : "${
-        payload.player.username
-      }" submit an answer.`
-    );
     socket.broadcast.emit(EVENT.SERVER_NEW_ANSWER, payload);
   });
 
@@ -65,19 +48,11 @@ io.on(EVENT.CONNECT, socket => {
     socket.broadcast.emit(EVENT.CLIENT_UPDATE_DRAWING, payload);
   });
 
-  socket.on(EVENT.DISCONNECT, reason => {
-    console.log(`${EVENT.DISCONNECT} : ${reason}.`);
+  socket.on(EVENT.DISCONNECT, e => {
     const player = pm.removePlayerBySocketId(socket.id);
     if (player) {
       socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
-      console.log(
-        `${EVENT.DISCONNECT} : "${player.username}" has left the room.`
-      );
     }
-  });
-
-  socket.on(EVENT.ERROR, err => {
-    console.log(`${EVENT.ERROR} : ${err}`);
   });
 });
 

@@ -12,8 +12,8 @@ class PlayerManager {
     return player;
   }
 
-  removePlayerById(id) {
-    const playerIndex = this.players.findIndex(u => u.id === id);
+  removePlayerBySocketId(socketId) {
+    const playerIndex = this.players.findIndex(u => u.socketId === socketId);
     if (playerIndex === -1) {
       throw new Error("player_not_found");
     }

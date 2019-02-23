@@ -26,7 +26,7 @@ const EVENT = {
 io.on(EVENT.CONNECT, socket => {
   socket.on(EVENT.CLIENT_JOIN_ROOM, player => {
     try {
-      pm.addPlayer({ ...player, id: socket.id });
+      pm.addPlayer({ ...player, socketId: socket.id });
       console.log(
         `${EVENT.CLIENT_JOIN_ROOM} : "${player.name}" has join the room.`
       );
@@ -43,7 +43,7 @@ io.on(EVENT.CONNECT, socket => {
   });
 
   socket.on(EVENT.CLIENT_LEAVE_ROOM, player => {
-    pm.removePlayerById(player.id);
+    pm.removePlayerBySocketId(player.socketId);
     console.log(
       `${EVENT.CLIENT_LEAVE_ROOM} : "${player.name}" has left the room.`
     );
@@ -61,7 +61,7 @@ io.on(EVENT.CONNECT, socket => {
 
   socket.on(EVENT.DISCONNECT, reason => {
     console.log(`${EVENT.DISCONNECT} : ${reason}.`);
-    const player = pm.removePlayerById(socket.id);
+    const player = pm.removePlayerBySocketId(socket.id);
     console.log(`${EVENT.DISCONNECT} : "${player.name}" has left the room.`);
     socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
   });

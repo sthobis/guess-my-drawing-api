@@ -44,11 +44,15 @@ io.on(EVENT.CONNECT, socket => {
   });
 
   socket.on(EVENT.CLIENT_LEAVE_ROOM, player => {
-    pm.removePlayerBySocketId(player.socketId);
-    console.log(
-      `${EVENT.CLIENT_LEAVE_ROOM} : "${player.username}" has left the room.`
-    );
-    socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
+    try {
+      pm.removePlayerBySocketId(player.socketId);
+      console.log(
+        `${EVENT.CLIENT_LEAVE_ROOM} : "${player.username}" has left the room.`
+      );
+      socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on(EVENT.CLIENT_SUBMIT_ANSWER, payload => {
@@ -62,11 +66,15 @@ io.on(EVENT.CONNECT, socket => {
 
   socket.on(EVENT.DISCONNECT, reason => {
     console.log(`${EVENT.DISCONNECT} : ${reason}.`);
-    const player = pm.removePlayerBySocketId(socket.id);
-    console.log(
-      `${EVENT.DISCONNECT} : "${player.username}" has left the room.`
-    );
-    socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
+    try {
+      const player = pm.removePlayerBySocketId(socket.id);
+      console.log(
+        `${EVENT.DISCONNECT} : "${player.username}" has left the room.`
+      );
+      socket.broadcast.emit(EVENT.SERVER_UPDATE_PLAYER_LIST, pm.players);
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on(EVENT.ERROR, err => {

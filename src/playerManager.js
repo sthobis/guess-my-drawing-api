@@ -16,11 +16,10 @@ class PlayerManager {
     const playerIndex = this.players.findIndex(
       u => u && u.socketId === socketId
     );
-    if (playerIndex === -1) {
-      throw new Error("player_not_found");
+    if (playerIndex >= 0) {
+      return this.players.splice(playerIndex, 1, null)[0];
     }
-    const player = this.players.splice(playerIndex, 1, null)[0];
-    return player;
+    return null;
   }
 }
 

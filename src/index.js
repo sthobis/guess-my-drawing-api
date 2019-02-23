@@ -18,6 +18,7 @@ const EVENT = {
   CLIENT_JOIN_ROOM: "client_join_room",
   CLIENT_LEAVE_ROOM: "client_leave_room",
   CLIENT_SUBMIT_ANSWER: "client_submit_answer",
+  CLIENT_UPDATE_DRAWING: "client_update_drawing",
   SERVER_JOIN_ERROR: "server_join_error",
   SERVER_UPDATE_PLAYER_LIST: "server_update_player_list",
   SERVER_NEW_ANSWER: "server_new_answer"
@@ -62,6 +63,10 @@ io.on(EVENT.CONNECT, socket => {
       }" submit an answer.`
     );
     socket.broadcast.emit(EVENT.SERVER_NEW_ANSWER, payload);
+  });
+
+  socket.on(EVENT.CLIENT_UPDATE_DRAWING, payload => {
+    socket.broadcast.emit(EVENT.CLIENT_UPDATE_DRAWING, payload);
   });
 
   socket.on(EVENT.DISCONNECT, reason => {

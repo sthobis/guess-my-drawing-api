@@ -12,6 +12,7 @@
   },
   "scripts": {
     "dev": "nodemon -w src -e js --exec \"babel-node src/index.js\"",
+    "build": "babel src -d build",
     "start": "node src/index.js"
   },
   "devDependencies": {

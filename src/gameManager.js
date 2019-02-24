@@ -39,7 +39,7 @@ class GameManager {
           this.currentAnswer
         }`
       );
-      this.timeout = setTimeout(() => this.finishCurrentRound(), 3000);
+      this.timeout = setTimeout(() => this.finishCurrentRound(), 30000);
       this.reeeeee();
     } else {
       console.log("not enough players, waiting for new players to join.");

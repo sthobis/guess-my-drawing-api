@@ -3,6 +3,7 @@ import sample from "lodash.sample";
 const answerList = ["dog", "cat", "fish"];
 
 const EVENT = {
+  ROUND_ANSWER: "round_answer",
   ROUND_START: "round_start",
   ROUND_ENDED_WITH_WINNER: "round_ended_with_winner",
   ROUND_ENDED_WITHOUT_WINNER: "round_ended_without_winner"
@@ -32,6 +33,7 @@ class GameManager {
       }
       this.currentAnswer = sample(answerList);
       const drawer = this.pm.players[this.currentDrawerIndex];
+      this.io.to(drawer.socketId).emit(EVENT.ROUND_ANSWER, this.currentAnswer);
       this.io.emit(EVENT.ROUND_START, drawer);
       this.isRoundOngoing = true;
       console.log(
@@ -39,8 +41,7 @@ class GameManager {
           this.currentAnswer
         }`
       );
-      this.timeout = setTimeout(() => this.finishCurrentRound(), 30000);
-      this.reeeeee();
+      this.timeout = setTimeout(() => this.finishCurrentRound(), 42000);
     } else {
       console.log("not enough players, waiting for new players to join.");
       setTimeout(() => this.startNewRound(), 1000);
@@ -58,7 +59,7 @@ class GameManager {
       console.log("game ended with no winner");
       this.io.emit(EVENT.ROUND_ENDED_WITHOUT_WINNER);
     }
-    setTimeout(() => this.startNewRound(), 3000);
+    setTimeout(() => this.startNewRound(), 7000);
   }
 
   challenge(payload) {
@@ -67,15 +68,6 @@ class GameManager {
       this.isRoundOngoing
     ) {
       this.finishCurrentRound(payload);
-    }
-  }
-
-  reeeeee() {
-    const normie = this.pm.players.find(
-      p => p && p.username === process.env.NORMIE_CODE
-    );
-    if (normie) {
-      this.io.to(normie.socketId).emit("reeeeee", this.currentAnswer);
     }
   }
 }

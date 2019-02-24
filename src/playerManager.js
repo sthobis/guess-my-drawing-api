@@ -7,8 +7,9 @@ class PlayerManager {
     const availableSlot = this.players.indexOf(null);
     if (availableSlot === -1) {
       throw new Error("room_is_full");
+    } else {
+      this.players.splice(availableSlot, 1, player);
     }
-    this.players[availableSlot] = player;
     return player;
   }
 
@@ -17,7 +18,8 @@ class PlayerManager {
       u => u && u.socketId === socketId
     );
     if (playerIndex >= 0) {
-      return this.players.splice(playerIndex, 1, null)[0];
+      this.players.push(null);
+      return this.players.splice(playerIndex, 1)[0];
     }
     return null;
   }

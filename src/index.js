@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import socketio from "socket.io";
+import GameManager from "./gameManager";
 import PlayerManager from "./playerManager";
 
 const PORT = process.env.PORT || 3004;
@@ -8,6 +9,7 @@ const app = express();
 const server = http.Server(app);
 const io = socketio(server);
 const pm = new PlayerManager();
+const gm = new GameManager(io, pm);
 
 const EVENT = {
   CONNECT: "connect",
@@ -41,6 +43,7 @@ io.on(EVENT.CONNECT, socket => {
   });
 
   socket.on(EVENT.CLIENT_SUBMIT_ANSWER, payload => {
+    gm.challenge(payload);
     socket.broadcast.emit(EVENT.SERVER_NEW_ANSWER, payload);
   });
 
@@ -63,4 +66,5 @@ app.get("/", (req, res) => {
 server.listen(PORT, err => {
   if (err) throw err;
   console.log(`Ready on port ${PORT}`);
+  gm.startNewRound();
 });

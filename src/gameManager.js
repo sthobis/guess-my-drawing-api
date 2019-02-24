@@ -1,6 +1,5 @@
 import sample from "lodash.sample";
-
-const answerList = ["dog", "cat", "fish"];
+import answers from "../answers.json";
 
 const EVENT = {
   ROUND_ANSWER: "round_answer",
@@ -31,7 +30,7 @@ class GameManager {
       } else {
         this.currentDrawerIndex = 0;
       }
-      this.currentAnswer = sample(answerList);
+      this.currentAnswer = sample(answers.keys);
       const drawer = this.pm.players[this.currentDrawerIndex];
       this.io.to(drawer.socketId).emit(EVENT.ROUND_ANSWER, this.currentAnswer);
       this.io.emit(EVENT.ROUND_START, drawer);

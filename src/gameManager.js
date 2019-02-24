@@ -47,13 +47,13 @@ class GameManager {
     }
   }
 
-  finishCurrentRound(winner) {
+  finishCurrentRound(payload) {
     clearTimeout(this.timeout);
     this.lastDrawerIndex = this.currentDrawerIndex;
     this.isRoundOngoing = false;
-    if (winner) {
-      console.log("game ended with winner = ", winner.username);
-      this.io.emit(EVENT.ROUND_ENDED_WITH_WINNER, winner);
+    if (payload) {
+      console.log("game ended with winner = ", payload.player.username);
+      this.io.emit(EVENT.ROUND_ENDED_WITH_WINNER, payload);
     } else {
       console.log("game ended with no winner");
       this.io.emit(EVENT.ROUND_ENDED_WITHOUT_WINNER);
@@ -66,7 +66,7 @@ class GameManager {
       payload.message.toLowerCase().trim() === this.currentAnswer &&
       this.isRoundOngoing
     ) {
-      this.finishCurrentRound(payload.player);
+      this.finishCurrentRound(payload);
     }
   }
 

@@ -56,7 +56,7 @@ class GameManager {
       this.io.emit(EVENT.ROUND_ENDED_WITH_WINNER, payload);
     } else {
       console.log("game ended with no winner");
-      this.io.emit(EVENT.ROUND_ENDED_WITHOUT_WINNER);
+      this.io.emit(EVENT.ROUND_ENDED_WITHOUT_WINNER, this.currentAnswer);
     }
     setTimeout(() => this.startNewRound(), 7000);
   }

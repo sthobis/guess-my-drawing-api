@@ -24,9 +24,10 @@ const EVENT = {
 };
 
 io.on(EVENT.CONNECT, socket => {
-  socket.on(EVENT.JOIN_ROOM, player => {
+  socket.on(EVENT.JOIN_ROOM, (player, handleJoinRoom) => {
     try {
       pm.addPlayer({ ...player, socketId: socket.id });
+      handleJoinRoom(pm.players);
       io.emit(EVENT.UPDATE_PLAYER_LIST, pm.players);
     } catch (err) {
       socket.emit(EVENT.JOIN_ROOM_ERROR, err);
